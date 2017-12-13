@@ -228,7 +228,7 @@ func (sk *SplooshKaboom) IsFieldEmpty(x int, y int) (bool, int) {
   for _, oboat := range sk.Boats {
     for _, tile := range oboat.BoatTile {
       if tile.X == x && tile.Y == y {
-        return true, sk.GameField[x][y]
+        return false, sk.GameField[x][y]
       }
     }
     // we are good to go!
