@@ -245,7 +245,7 @@ func (sk *SplooshKaboom) Target(x int, y int) {
   empty, val := sk.IsFieldEmpty(x, y)
   if empty && val >= 0 {
     sk.Bombs--
-    if val == SKEMPTY {
+    if val == SKEMPTY || empty {
       sk.GameField[x][y] = SKSPLOOSH
     } else {
       sk.GameField[x][y] = SKKABOOM
