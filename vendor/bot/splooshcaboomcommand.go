@@ -121,7 +121,7 @@ func (c *SplooshKaboomCommand) RenderSplooshKaboom(gid string,emoji []*discordgo
   sunk := EmojiToPrintableString(GetEmojiForName("skSunk", emoji), "✅")
   blank := EmojiToPrintableString(GetEmojiForName("skBlank", emoji), "☁")
 
-  sploosh := EmojiToPrintableString(GetEmojiForName("skBlank", emoji), "❌")
+  sploosh := EmojiToPrintableString(GetEmojiForName("skSploosh", emoji), "❌")
   kaboom := EmojiToPrintableString(GetEmojiForName("skKaboom", emoji), "✅")
 
   var result = ""
