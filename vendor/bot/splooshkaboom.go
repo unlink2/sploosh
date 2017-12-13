@@ -193,6 +193,7 @@ func (sk *SplooshKaboom) appendBoat(boat *Boat, boatSize int) {
       failedValid++
       continue
     } else {
+      fmt.Println("Generated valid tile: ", newBT.X, newBT.Y)
       boat.BoatTile = append(boat.BoatTile, newBT)
     }
   }
@@ -245,7 +246,7 @@ func (sk *SplooshKaboom) Target(x int, y int) {
   empty, val := sk.IsFieldEmpty(x, y)
   if val >= 0 {
     sk.Bombs--
-    if val == SKEMPTY || empty {
+    if val == SKEMPTY && empty {
       sk.GameField[x][y] = SKSPLOOSH
     } else {
       sk.GameField[x][y] = SKKABOOM
