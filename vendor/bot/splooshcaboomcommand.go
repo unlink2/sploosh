@@ -187,7 +187,6 @@ func (c *SplooshKaboomCommand) RenderSplooshKaboom(gid string,emoji []*discordgo
   if sk.BoatsLeft == 0 {
     return "You win!"
   }
-
   return fmt.Sprintf("SPLOOSH! KABOOM!\n%s", result)
 }
 
