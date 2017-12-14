@@ -31,7 +31,7 @@ func (c *SplooshKaboomCommand) Execute(s *discordgo.Session, m *discordgo.Messag
 
     sk := c.GetSplooshKaboomForID(guild.ID)
     sk.GenerateNewGame()
-  } else if strings.HasPrefix(m.Content, "~target") || strings.HasPrefix(m.Content, "~t") {
+  } else if strings.HasPrefix(m.Content, "~target") {
     split := strings.Split(m.Content, " ")
 
     if len(split) < 3 {
