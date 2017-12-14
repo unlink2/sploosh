@@ -16,6 +16,7 @@ type CommandI interface {
   GetNames() []string
   GetOutput() []string
   GetID() int
+  GetHelp() string
 
   OnGuildCreated(s *discordgo.Session, event *discordgo.GuildCreate)
 }
@@ -24,6 +25,7 @@ type DefaultCommand struct {
   ID int
   Names []string
   Output []string
+  Help string
 
 }
 
@@ -66,6 +68,10 @@ func (c *DefaultCommand) GetOutput() []string {
 
 func (c *DefaultCommand) GetID() int {
   return c.ID
+}
+
+func (c *DefaultCommand) GetHelp() string {
+  return c.Help
 }
 
 // util stuff

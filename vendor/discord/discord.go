@@ -59,12 +59,14 @@ func ready(s *discordgo.Session, event *discordgo.Ready) {
     ID: 0,
     Names: []string{"~reset", "~target", "~show", "~cheat"},
     Output: []string{},
+    Help: "~reset -> resets game\n~target x y -> targets field\n~show -> shows current Sploosh Kaboom game",
   })
 
-  bot.Commands = append(bot.Commands, &bot.DefaultCommand{
+  bot.Commands = append(bot.Commands, &bot.HelpCommand{
     ID: 0,
     Names: []string{"~help"},
-    Output: []string{"```Commands: \n\n~help -> prints help text\n~reset -> resets game\n~target x y -> targets field\n~show -> shows current Sploosh Kaboom game\nFork me: https://github.com/unlink2/sploosh```"},
+    Help: "~help -> prints help text",
+    Output: []string{""},
   })
 }
 

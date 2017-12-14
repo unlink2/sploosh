@@ -13,6 +13,7 @@ type SplooshKaboomCommand struct {
   ID int
   Names []string
   Output []string
+  Help string
   sks []*SplooshKaboom
 
   splooshSound [][]byte
@@ -266,6 +267,10 @@ func (c *SplooshKaboomCommand) GetOutput() []string {
   return c.Output
 }
 
-func (c SplooshKaboomCommand) GetID() int {
+func (c *SplooshKaboomCommand) GetID() int {
   return c.ID
+}
+
+func (c *SplooshKaboomCommand) GetHelp() string {
+  return c.Help
 }
