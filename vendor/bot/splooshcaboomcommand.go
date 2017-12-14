@@ -80,7 +80,7 @@ func (c *SplooshKaboomCommand) Execute(s *discordgo.Session, m *discordgo.Messag
 
     if result < 0 {
       response = fmt.Sprintf("SPLOOSH! KABOOM!\n%s", response)
-    } else if result == RESULTKABOOM {
+    } else if result == RESULTKABOOM || result == RESULTSHIPSUNK {
       response = fmt.Sprintf("KABOOM!\n%s", response)
     } else if result == RESULTSPLOOSH {
       response = fmt.Sprintf("SPLOOSH!\n%s", response)
