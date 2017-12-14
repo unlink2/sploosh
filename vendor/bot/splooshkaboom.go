@@ -34,7 +34,7 @@ const (
 
 const (
   MAPW = 6
-  MAPH = 10
+  MAPH = 8
 )
 
 const (
