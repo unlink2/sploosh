@@ -31,7 +31,7 @@ func (c *SplooshKaboomCommand) Execute(s *discordgo.Session, m *discordgo.Messag
 
     sk := c.GetSplooshKaboomForID(guild.ID)
     sk.GenerateNewGame()
-  } else if strings.HasPrefix(m.Content, "~target") {
+  } else if strings.HasPrefix(m.Content, "~target") || strings.HasPrefix(m.Content, "~") {
     split := strings.Split(m.Content, " ")
 
     if len(split) < 3 {
@@ -174,7 +174,7 @@ func (c *SplooshKaboomCommand) RenderSplooshKaboom(gid string,emoji []*discordgo
       }
     }
 
-    if x < 3 {
+    if x < BOATAMOUNT {
       if sk.BoatsLeft - 1 < x {
         result = fmt.Sprintf("%s %s", result, sunk)
       } else {

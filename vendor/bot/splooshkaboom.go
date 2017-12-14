@@ -33,7 +33,7 @@ const (
 )
 
 const (
-  MAPW = 8
+  MAPW = 7
   MAPH = 10
 )
 
@@ -113,7 +113,7 @@ func (sk *SplooshKaboom) GenerateNewGame() {
     sk.appendBoat(&sk.Boats[i], boatSize)
   }
 
-  sk.Bombs = 8 * 3
+  sk.Bombs = 7 * 3
 }
 
 func (sk *SplooshKaboom) appendBoat(boat *Boat, boatSize int) {
