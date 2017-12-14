@@ -41,6 +41,12 @@ const (
   BOATAMOUNT = 3
 )
 
+const (
+  RESULTSPLOOSH = 0
+  RESULTKABOOM = 1
+  RESULTSHIPSUNK = 2
+)
+
 const MAXFAILEDVALID = 10
 
 type BoatTile struct {
@@ -242,7 +248,9 @@ func (sk *SplooshKaboom) IsFieldEmpty(x int, y int) (bool, int) {
   return false, sk.GameField[x][y]
 }
 
-func (sk *SplooshKaboom) Target(x int, y int) {
+func (sk *SplooshKaboom) Target(x int, y int) int {
+  var retVal = RESULTSPLOOSH
+
   empty, val := sk.IsFieldEmpty(x, y)
   if val >= 0 {
     sk.Bombs--
@@ -250,6 +258,7 @@ func (sk *SplooshKaboom) Target(x int, y int) {
       sk.GameField[x][y] = SKSPLOOSH
     } else if val != SKSPLOOSH {
       sk.GameField[x][y] = SKKABOOM
+      retVal = RESULTKABOOM
     }
   }
 
@@ -264,10 +273,13 @@ func (sk *SplooshKaboom) Target(x int, y int) {
           oboat.BoatSize--
           sk.Boats[index] = oboat
           fmt.Println("Boatsize ", oboat.BoatSize, oboat.BoatSize == 0, oboat, " Remaining boats: ", sk.BoatsLeft)
+          retVal = RESULTSHIPSUNK
         }
       }
     }
   }
+
+  return retVal
 }
 
 func (sk *SplooshKaboom) GameOver() {

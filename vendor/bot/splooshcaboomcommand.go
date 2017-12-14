@@ -14,6 +14,9 @@ type SplooshKaboomCommand struct {
   Names []string
   Output []string
   sks []*SplooshKaboom
+
+  splooshSound [][]byte
+  kaboomSound [][]byte
 }
 
 func (c *SplooshKaboomCommand) Execute(s *discordgo.Session, m *discordgo.MessageCreate) bool {
@@ -21,6 +24,25 @@ func (c *SplooshKaboomCommand) Execute(s *discordgo.Session, m *discordgo.Messag
   guild, _ := s.Guild(channel.GuildID)
 
   emoji := guild.Emojis
+
+  // load sounds if not done already
+  var err error
+  if len(c.splooshSound) == 0 {
+    c.splooshSound, err = loadSound("./sploosh.dca")
+    if err != nil {
+      fmt.Println(err)
+    } else {
+      fmt.Println("Loaded sploosh.dca!")
+    }
+  }
+  if len(c.kaboomSound) == 0 {
+    c.kaboomSound, err = loadSound("./kaboom.dca")
+    if err != nil {
+      fmt.Println(err)
+    } else {
+      fmt.Println("Loaded kaboom.dca!")
+    }
+  }
 
   // check for what the command started with
   if strings.HasPrefix(m.Content, "~show") {
@@ -54,7 +76,44 @@ func (c *SplooshKaboomCommand) Execute(s *discordgo.Session, m *discordgo.Messag
       return false
     }
 
-    s.ChannelMessageSend(m.ChannelID, c.Target(guild.ID, y - 1, x - 1, emoji))
+    response, result := c.Target(guild.ID, y - 1, x - 1, emoji)
+
+    // Find the channel that the message came from.
+		channel, err := s.State.Channel(m.ChannelID)
+		if err != nil {
+			// Could not find channel.
+      fmt.Println("Error finding channel:", err)
+    } else {
+      // Find the guild for that channel.
+  		guildSnd, err := s.State.Guild(channel.GuildID)
+  		if err != nil {
+  			// Could not find guild.
+  			fmt.Println("Error finding guild:", err)
+      } else {
+        // Look for the message sender in that guild's current voice states.
+    		for _, vs := range guildSnd.VoiceStates {
+
+    			if vs.UserID == m.Author.ID {
+            var buff [][]byte
+
+            if result >= 0 {
+              if result == RESULTKABOOM {
+                buff = c.kaboomSound
+              } else if result == RESULTSPLOOSH {
+                buff = c.splooshSound
+              }
+              err = playSound(s, guildSnd.ID, vs.ChannelID, buff)
+      				if err != nil {
+      					fmt.Println("Error playing sound:", err)
+      				}
+            }
+    			}
+        }
+      }
+    }
+
+
+    s.ChannelMessageSend(m.ChannelID, response)
   } else if strings.HasPrefix(m.Content, "~cheat") {
     sk := c.GetSplooshKaboomForID(guild.ID)
     sk.GameOver()
@@ -86,16 +145,16 @@ func (c *SplooshKaboomCommand) GetSplooshKaboomForID(gid string) *SplooshKaboom 
   return c.GetSplooshKaboomForID(gid)
 }
 
-func (c *SplooshKaboomCommand) Target(gid string, x int, y int, emoji []*discordgo.Emoji) string {
+func (c *SplooshKaboomCommand) Target(gid string, x int, y int, emoji []*discordgo.Emoji) (string, int) {
   sk := c.GetSplooshKaboomForID(gid)
 
   if sk.Bombs == 0 {
-    return "Game Over!"
+    return "Game Over!", -1
   }
 
-  sk.Target(x, y)
+  result := sk.Target(x, y)
 
-  return c.RenderSplooshKaboom(gid, emoji)
+  return c.RenderSplooshKaboom(gid, emoji), result
 }
 
 func (c *SplooshKaboomCommand) RenderSplooshKaboom(gid string,emoji []*discordgo.Emoji) string {
@@ -187,7 +246,7 @@ func (c *SplooshKaboomCommand) RenderSplooshKaboom(gid string,emoji []*discordgo
   if sk.BoatsLeft == 0 {
     return "You win!"
   }
-  
+
   return fmt.Sprintf("SPLOOSH! KABOOM!\n%s", result)
 }
 
