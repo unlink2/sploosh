@@ -46,7 +46,7 @@ func (c *SplooshKaboomCommand) Execute(s *discordgo.Session, m *discordgo.Messag
 
   // check for what the command started with
   if strings.HasPrefix(m.Content, "~show") {
-    s.ChannelMessageSend(m.ChannelID, c.RenderSplooshKaboom(guild.ID, emoji))
+    s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("SPLOOSH! KABOOM!\n%s", c.RenderSplooshKaboom(guild.ID, emoji)))
   } else if strings.HasPrefix(m.Content, "~reset") {
     e := GetEmojiForName("JKanStyle", emoji)
     s.ChannelMessageSend(m.ChannelID, "Resetting " + EmojiToPrintableString(e, ""))
@@ -77,6 +77,14 @@ func (c *SplooshKaboomCommand) Execute(s *discordgo.Session, m *discordgo.Messag
     }
 
     response, result := c.Target(guild.ID, y - 1, x - 1, emoji)
+
+    if result < 0 {
+      response = fmt.Sprintf("SPLOOSH! KABOOM!\n%s", response)
+    } else if result == RESULTKABOOM {
+      response = fmt.Sprintf("KABOOM!\n%s", response)
+    } else if result == RESULTSPLOOSH {
+      response = fmt.Sprintf("SPLOOSH!\n%s", response)
+    }
 
     // Find the channel that the message came from.
 		channel, err := s.State.Channel(m.ChannelID)
@@ -247,7 +255,7 @@ func (c *SplooshKaboomCommand) RenderSplooshKaboom(gid string,emoji []*discordgo
     return "You win!"
   }
 
-  return fmt.Sprintf("SPLOOSH! KABOOM!\n%s", result)
+  return fmt.Sprintf("%s", result)
 }
 
 func (c *SplooshKaboomCommand) GetNames() []string {
