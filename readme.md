@@ -1,23 +1,23 @@
-##Sploosh
+# Sploosh
 
 A simple Discord Bot that lets you play Sploosh! Kaboom! just like in Wind Waker!
 
-##Setup
+## Setup
 
-###Hosted version:
+### Hosted version:
 
 To add the bot to your Discord Server click this
 [link](https://discordapp.com/api/oauth2/authorize?client_id=390599729215700992&permissions=0&scope=bot) .  Discord will then ask you which server to add the bot to.
 
 Note: To disable sounds that the bot plays simply either mute it or add it to a group which does not allow voice activity!
 
-###Running it yourself:
+### Running it yourself:
 
 To get the bot yourself simply run
 
 `go get github.com/unlink2/sploosh`
 
-###Configuration FIle
+### Configuration FIle
 
 The bot expects a config file to be placed next to it's executable.
 
@@ -31,7 +31,7 @@ and look as like this:
 clientid=YOUR CLIENTID
 token=YOUR TOKEN`
 
-###Optional files
+### Optional files
 
 The bot can also play optional soundfiles. The files are called
 
@@ -43,7 +43,7 @@ and
 
 These files will be played if the user using the bot is in  a voice channel.
 
-###Optional Emotes
+### Optional Emotes
 
 The following optional emotes can be added to your discord to make the bot look nicer.
 If the emotes are not present emoji will be used instead.
