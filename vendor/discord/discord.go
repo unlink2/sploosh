@@ -46,14 +46,12 @@ func NewDiscordBot(cfg *ini.File) *DiscordConnection {
 
   newConn.Session = s
 
+  createCommands()
+
   return newConn
 }
 
-func ready(s *discordgo.Session, event *discordgo.Ready) {
-
-	// Set the playing status.
-	s.UpdateStatus(0, "SPLOOSH! KABOOM!")
-
+func createCommands() {
   // create commands
   bot.Commands = append(bot.Commands, &bot.SplooshKaboomCommand{
     ID: 0,
@@ -68,6 +66,14 @@ func ready(s *discordgo.Session, event *discordgo.Ready) {
     Help: "~help -> prints help text",
     Output: []string{""},
   })
+}
+
+func ready(s *discordgo.Session, event *discordgo.Ready) {
+
+	// Set the playing status.
+	s.UpdateStatus(0, "SPLOOSH! KABOOM!")
+
+  fmt.Println("Bot ready!")
 }
 
 
