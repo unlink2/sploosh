@@ -18,7 +18,7 @@ func (c *HelpCommand) Execute(s *discordgo.Session, m *discordgo.MessageCreate) 
   for _, op := range Commands {
     out = fmt.Sprintf("%s\n%s", out, op.GetHelp())
   }
-  s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s\n\n%s", out, "Fork me: https://github.com/unlink2/sploosh```"))
+  s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s\n\n%s", out, "Fork me: https://unlink2.github.io/sploosh/```"))
   return true
 }
 
