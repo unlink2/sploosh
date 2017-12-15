@@ -94,6 +94,11 @@ func guildCreate(s *discordgo.Session, event *discordgo.GuildCreate) {
 func (*DiscordConnection) onMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
   // Ignore all messages created by the bot itself
 	if m.Author.ID == s.State.User.ID {
+    bot.CleanMessages(s, m.ChannelID)
+    bot.MessagesToCleanBuffer = append(bot.MessagesToCleanBuffer, bot.MessageBuffer{
+      MessageID: m.ID,
+      ChannelID: m.ChannelID,
+    })
 		return
   }
 

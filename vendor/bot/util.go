@@ -11,6 +11,8 @@ import (
 
 var Commands []CommandI
 
+var MessagesToCleanBuffer []MessageBuffer
+
 type CommandI interface {
   Execute(s *discordgo.Session, m *discordgo.MessageCreate) bool
   GetNames() []string
@@ -21,12 +23,30 @@ type CommandI interface {
   OnGuildCreated(s *discordgo.Session, event *discordgo.GuildCreate)
 }
 
+type MessageBuffer struct {
+  MessageID string
+  ChannelID string
+}
+
 type DefaultCommand struct {
   ID int
   Names []string
   Output []string
   Help string
 
+}
+
+func removeIndexMessage(s []MessageBuffer, index int) []MessageBuffer {
+    return append(s[:index], s[index+1:]...)
+}
+
+func CleanMessages(s *discordgo.Session, channelid string) {
+  for i, m := range MessagesToCleanBuffer {
+    if m.ChannelID == channelid {
+      s.ChannelMessageDelete(m.ChannelID, m.MessageID)
+      MessagesToCleanBuffer = removeIndexMessage(MessagesToCleanBuffer, i)
+    }
+  }
 }
 
 func EmojiToPrintableString(emoji *discordgo.Emoji, fallback string) string {
