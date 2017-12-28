@@ -20,6 +20,8 @@ type CommandI interface {
   GetID() int
   GetHelp() string
 
+  IsOnCooldown() bool
+
   OnGuildCreated(s *discordgo.Session, event *discordgo.GuildCreate)
 }
 
@@ -92,6 +94,10 @@ func (c *DefaultCommand) GetID() int {
 
 func (c *DefaultCommand) GetHelp() string {
   return c.Help
+}
+
+func (c *DefaultCommand) IsOnCooldown() bool {
+  return false
 }
 
 // util stuff

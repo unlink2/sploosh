@@ -10,10 +10,6 @@ import (
 type SplooshKaboomCommand struct {
   DefaultCommand
 
-  ID int
-  Names []string
-  Output []string
-  Help string
   sks []*SplooshKaboom
 
   splooshSound [][]byte
@@ -257,20 +253,4 @@ func (c *SplooshKaboomCommand) RenderSplooshKaboom(gid string,emoji []*discordgo
   }
 
   return fmt.Sprintf("%s", result)
-}
-
-func (c *SplooshKaboomCommand) GetNames() []string {
-  return c.Names
-}
-
-func (c *SplooshKaboomCommand) GetOutput() []string {
-  return c.Output
-}
-
-func (c *SplooshKaboomCommand) GetID() int {
-  return c.ID
-}
-
-func (c *SplooshKaboomCommand) GetHelp() string {
-  return c.Help
 }

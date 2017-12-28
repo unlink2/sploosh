@@ -5,11 +5,13 @@ import (
   "fmt"
 )
 
-type HelpCommand struct {
+type SoundCommand struct {
   DefaultCommand
+
 }
 
-func (c *HelpCommand) Execute(s *discordgo.Session, m *discordgo.MessageCreate) bool {
+func (c *SoundCommand) Execute(s *discordgo.Session, m *discordgo.MessageCreate) bool {
+  c.DefaultCommand.Execute(s, m)
   var out = "```Commands: \n"
   for _, op := range Commands {
     out = fmt.Sprintf("%s\n%s", out, op.GetHelp())
@@ -18,5 +20,5 @@ func (c *HelpCommand) Execute(s *discordgo.Session, m *discordgo.MessageCreate) 
   return true
 }
 
-func (c *HelpCommand) OnGuildCreated(s *discordgo.Session, event *discordgo.GuildCreate) {
+func (c *SoundCommand) OnGuildCreated(s *discordgo.Session, event *discordgo.GuildCreate) {
 }

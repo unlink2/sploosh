@@ -53,19 +53,26 @@ func NewDiscordBot(cfg *ini.File) *DiscordConnection {
 
 func createCommands() {
   // create commands
-  bot.Commands = append(bot.Commands, &bot.SplooshKaboomCommand{
+  bot.Commands = append(bot.Commands, &bot.SplooshKaboomCommand{DefaultCommand: bot.DefaultCommand {
     ID: 0,
     Names: []string{"~reset", "~target", "~show", "~cheat"},
     Output: []string{},
     Help: "~reset -> resets game\n~target x y -> targets field\n~show -> shows current Sploosh Kaboom game",
-  })
+  }})
 
-  bot.Commands = append(bot.Commands, &bot.HelpCommand{
+  bot.Commands = append(bot.Commands, &bot.HelpCommand{DefaultCommand: bot.DefaultCommand {
     ID: 0,
     Names: []string{"~help"},
     Help: "~help -> prints help text",
     Output: []string{""},
-  })
+  }})
+
+  bot.Commands = append(bot.Commands, &bot.SoundCommand{DefaultCommand: bot.DefaultCommand {
+    ID: 0,
+    Names: []string{"~ps", "~ls"},
+    Help: "~ps <sound name> -> plays sound\n~ls -> lists all sounds",
+    Output: []string{""},
+  }})
 }
 
 func ready(s *discordgo.Session, event *discordgo.Ready) {
