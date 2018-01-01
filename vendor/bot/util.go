@@ -136,7 +136,7 @@ func loadSound(path string) ([][]byte, error) {
 		return nil, err
 	}
 
-	var opuslen uint16
+	var opuslen int16
 
   fmt.Println("Reading dca file: ", path)
 
