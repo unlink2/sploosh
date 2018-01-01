@@ -111,6 +111,7 @@ func (c *SplooshKaboomCommand) Execute(s *discordgo.Session, m *discordgo.Messag
       				if err != nil {
       					fmt.Println("Error playing sound:", err)
       				}
+              break
             }
     			}
         }

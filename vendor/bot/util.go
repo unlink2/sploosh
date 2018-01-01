@@ -7,7 +7,6 @@ import (
 	"io"
 	"os"
   "time"
-  "errors"
 )
 
 var Commands []CommandI
@@ -138,12 +137,14 @@ func loadSound(path string) ([][]byte, error) {
 
 	var opuslen int16
 
+  fmt.Println("Reading soundfile: ", path, " With len: ", opuslen)
+
 	for {
 		// Read opus frame length from dca file.
 		err = binary.Read(file, binary.LittleEndian, &opuslen)
 
 		// If this is the end of the file, just return.
-		if err == io.EOF || err == io.ErrUnexpectedEOF {
+		if err == io.EOF || err == io.ErrUnexpectedEOF || opuslen <= 0 {
 			err = file.Close()
 			if err != nil {
 				return nil, err
@@ -155,11 +156,6 @@ func loadSound(path string) ([][]byte, error) {
 			fmt.Println("Error reading from dca file :", err)
 			return nil, err
 		}
-    fmt.Println("Reading soundfile: ", path, " With len: ", opuslen)
-
-    if opuslen < 1 {
-      return nil, errors.New("Opuslen is out of range!")
-    }
 
 		// Read encoded pcm from dca file.
 		InBuf := make([]byte, opuslen)

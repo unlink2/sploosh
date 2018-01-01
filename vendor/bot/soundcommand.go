@@ -68,6 +68,7 @@ func (c *SoundCommand) Execute(s *discordgo.Session, m *discordgo.MessageCreate)
         			if err != nil {
         				fmt.Println("Error playing sound:", err)
         			}
+              break
       			}
           }
         }
