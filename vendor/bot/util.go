@@ -145,6 +145,7 @@ func loadSound(path string) ([][]byte, error) {
 		err = binary.Read(file, binary.LittleEndian, &opuslen)
 
     if opuslen <= 0 {
+      fmt.Println("Error reading from dca file : Unexpected opuslen")
       return buffer, errors.New("unexpected opuslen")
     }
 
