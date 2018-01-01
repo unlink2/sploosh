@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
   "time"
+  "errors"
 )
 
 var Commands []CommandI
@@ -155,6 +156,11 @@ func loadSound(path string) ([][]byte, error) {
 			return nil, err
 		}
     fmt.Println("Reading soundfile: ", file, " With len: ", opuslen)
+
+    if opuslen < 1 {
+      return nil, errors.New("Opuslen is out of range!")
+    }
+
 		// Read encoded pcm from dca file.
 		InBuf := make([]byte, opuslen)
 		err = binary.Read(file, binary.LittleEndian, &InBuf)
