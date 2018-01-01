@@ -155,7 +155,7 @@ func loadSound(path string) ([][]byte, error) {
 			fmt.Println("Error reading from dca file :", err)
 			return nil, err
 		}
-    fmt.Println("Reading soundfile: ", file, " With len: ", opuslen)
+    fmt.Println("Reading soundfile: ", path, " With len: ", opuslen)
 
     if opuslen < 1 {
       return nil, errors.New("Opuslen is out of range!")
