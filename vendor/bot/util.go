@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
   "time"
+  "errors"
 )
 
 var Commands []CommandI
@@ -143,8 +144,8 @@ func loadSound(path string) ([][]byte, error) {
 		// Read opus frame length from dca file.
 		err = binary.Read(file, binary.LittleEndian, &opuslen)
 
-    if  opuslen <= 0 {
-      continue
+    if opuslen <= 0 {
+      return buffer, errors.New("unexpected opuslen")
     }
 
 		// If this is the end of the file, just return.
