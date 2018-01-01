@@ -136,7 +136,7 @@ func loadSound(path string) ([][]byte, error) {
 		return nil, err
 	}
 
-	var opuslen int16
+	var opuslen int32
 
   fmt.Println("Reading soundfile: ", path, " With len: ", opuslen)
 
