@@ -136,9 +136,9 @@ func loadSound(path string) ([][]byte, error) {
 		return nil, err
 	}
 
-	var opuslen int32
+	var opuslen uint16
 
-  fmt.Println("Reading soundfile: ", path, " With len: ", opuslen)
+  fmt.Println("Reading dca file: ", path)
 
 	for {
 		// Read opus frame length from dca file.
