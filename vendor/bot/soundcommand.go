@@ -46,6 +46,7 @@ func (c *SoundCommand) Execute(s *discordgo.Session, m *discordgo.MessageCreate)
     // load sound here
     sound, err := loadSound("./sounds/" + split[1])
     if err != nil {
+      fmt.Println("Error loading sound:", err)
       return false
     } else {
       // Find the channel that the message came from.
