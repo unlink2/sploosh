@@ -154,7 +154,7 @@ func loadSound(path string) ([][]byte, error) {
 			fmt.Println("Error reading from dca file :", err)
 			return nil, err
 		}
-
+    fmt.Println("Reading soundfile: ", file, " With len: ", opuslen)
 		// Read encoded pcm from dca file.
 		InBuf := make([]byte, opuslen)
 		err = binary.Read(file, binary.LittleEndian, &InBuf)
