@@ -13,6 +13,11 @@ var Commands []CommandI
 
 var MessagesToCleanBuffer []MessageBuffer
 
+type Cooldown struct {
+  Userid string
+  EndTime int64
+}
+
 type CommandI interface {
   Execute(s *discordgo.Session, m *discordgo.MessageCreate) bool
   GetNames() []string
@@ -20,7 +25,8 @@ type CommandI interface {
   GetID() int
   GetHelp() string
 
-  IsOnCooldown() bool
+  IsOnCooldown(userid string) bool
+  SetCooldown(userid string, duration int64)
 
   OnGuildCreated(s *discordgo.Session, event *discordgo.GuildCreate)
 }
@@ -36,6 +42,8 @@ type DefaultCommand struct {
   Output []string
   Help string
 
+  CooldownLen int64
+  cooldowns []Cooldown
 }
 
 func removeIndexMessage(s []MessageBuffer, index int) []MessageBuffer {
@@ -70,9 +78,15 @@ func GetEmojiForName(name string ,emoji []*discordgo.Emoji) *discordgo.Emoji {
 }
 
 func (c *DefaultCommand) Execute(s *discordgo.Session, m *discordgo.MessageCreate) bool {
+  if c.IsOnCooldown(m.Author.ID) {
+    return false
+  }
+
   for _, op := range c.Output {
     s.ChannelMessageSend(m.ChannelID, op)
   }
+
+  c.SetCooldown(m.Author.ID, c.CooldownLen)
 
   return true
 }
@@ -96,8 +110,19 @@ func (c *DefaultCommand) GetHelp() string {
   return c.Help
 }
 
-func (c *DefaultCommand) IsOnCooldown() bool {
+func (c *DefaultCommand) IsOnCooldown(userid string) bool {
+  for index, cd := range c.cooldowns {
+    if cd.Userid == userid && time.Now().Unix() < cd.EndTime {
+      return true
+    } else if cd.Userid == userid {
+      c.cooldowns = append(c.cooldowns[:index], c.cooldowns[index+1:]...)
+    }
+  }
   return false
+}
+
+func (c *DefaultCommand) SetCooldown(userid string, duration int64) {
+  c.cooldowns = append(c.cooldowns, Cooldown{Userid: userid, EndTime: time.Now().Unix() + duration})
 }
 
 // util stuff

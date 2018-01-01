@@ -71,7 +71,8 @@ func createCommands() {
     ID: 0,
     Names: []string{"~ps", "~ls"},
     Help: "~ps <sound name> -> plays sound\n~ls -> lists all sounds",
-    Output: []string{""},
+    Output: []string{},
+    CooldownLen: 30,
   }})
 }
 
