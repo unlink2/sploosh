@@ -43,12 +43,15 @@ func Execute(request *restful.Request, response *restful.Response) {
   channelid := request.QueryParameter("channelid")
   authorid := request.QueryParameter("authorid")
 
+  clientsecret := request.QueryParameter("clientsecret")
+
   if authorid == "" {
     authorid = clientid
   }
 
   // get whitelisted arrays
   clientids := config.Globalcfg.Section("clientids")
+  clientsecrets := config.Globalcfg.Section("clientsecrets")
   clientidKeys := clientids.Keys()
 
   var success bool
@@ -58,13 +61,17 @@ func Execute(request *restful.Request, response *restful.Response) {
 
   for _, key := range clientidKeys {
     if key.String() == clientid {
-      canExecute = true
-      break;
+      if clientsecrets.HasKey(key.Name()) {
+        if clientsecrets.Key(key.Name()).String() == clientsecret {
+          canExecute = true
+          break;
+        }
+      }
     }
   }
 
   if !canExecute && len(clientidKeys) > 0 {
-    response.WriteError(418, errors.New("Invalid client-id"))
+    response.WriteError(418, errors.New("Invalid client-id or client-secret"))
     return
   }
 
