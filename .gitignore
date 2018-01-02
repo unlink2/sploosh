@@ -1,3 +1,4 @@
 *.ini
 *.dca
 sounds/*.dca
+sounds/

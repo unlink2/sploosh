@@ -5,6 +5,7 @@ import (
   "strings"
   "io/ioutil"
   "fmt"
+  "config"
 )
 
 type SoundCommand struct {
@@ -15,6 +16,28 @@ type SoundCommand struct {
 func (c *SoundCommand) Execute(s *discordgo.Session, m *discordgo.MessageCreate) bool {
   split := strings.Split(m.Content, " ")
 
+  channel, _ := s.Channel(m.ChannelID)
+  guild, _ := s.Guild(channel.GuildID)
+
+  // get whitelisted arrays
+  whitelist := config.Globalcfg.Section("soundwhitelist")
+  whitelistKeys := whitelist.Keys()
+
+  var canExecute = false
+
+  for _, key := range whitelistKeys {
+    if key.String() == guild.ID {
+      canExecute = true
+      break;
+    }
+  }
+
+  if !canExecute {
+    s.ChannelMessageSend(m.ChannelID, "Your discord guild is not whitelisted for sounds! Please contact" +
+      "lukaskrickl@gmail.com to be added to the whitelist!")
+    return false
+  }
+
   if len(split) < 1 {
     return false
   }
@@ -22,10 +45,11 @@ func (c *SoundCommand) Execute(s *discordgo.Session, m *discordgo.MessageCreate)
   if split[0] == "~ls" {
     files, err := ioutil.ReadDir("./sounds")
     if err != nil {
+      s.ChannelMessageSend(m.ChannelID, "Unable to list sounds!")
       return false
     }
 
-    out := "```Sounds:\n"
+    out := "```Sounds:\n\n"
 
     for _, f := range files {
       out = out + f.Name() + "\n"
@@ -46,6 +70,7 @@ func (c *SoundCommand) Execute(s *discordgo.Session, m *discordgo.MessageCreate)
     // load sound here
     sound, err := loadSound("./sounds/" + split[1])
     if err != nil && sound == nil {
+      s.ChannelMessageSend(m.ChannelID, "Error loading sound:" + err.Error())
       fmt.Println("Error loading sound:", err)
       return false
     } else {
@@ -67,8 +92,11 @@ func (c *SoundCommand) Execute(s *discordgo.Session, m *discordgo.MessageCreate)
       			if vs.UserID == m.Author.ID {
               err = playSound(s, guildSnd.ID, vs.ChannelID, sound)
         			if err != nil {
+                s.ChannelMessageSend(m.ChannelID, "Error playing sound:" + err.Error())
         				fmt.Println("Error playing sound:", err)
-        			}
+        			} else {
+                s.ChannelMessageSend(m.ChannelID, "Playing sound: " + split[1])
+              }
               break
       			}
           }
