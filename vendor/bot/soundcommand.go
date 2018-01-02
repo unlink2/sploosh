@@ -91,9 +91,9 @@ func (c *SoundCommand) Execute(s *discordgo.Session, m *discordgo.MessageCreate)
         } else {
           // Look for the message sender in that guild's current voice states.
       		for _, vs := range guildSnd.VoiceStates {
-            
+
       			if vs.UserID == m.Author.ID {
-              c.SetCooldown(m.Author.ID, c.DefaultCommand.CooldownLen)
+              //c.SetCooldown(m.Author.ID, c.DefaultCommand.CooldownLen)
               s.ChannelMessageSend(m.ChannelID, "Playing sound: " + split[1])
               err = playSound(s, guildSnd.ID, vs.ChannelID, sound)
         			if err != nil {

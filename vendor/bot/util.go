@@ -14,6 +14,8 @@ var Commands []CommandI
 
 var MessagesToCleanBuffer []MessageBuffer
 
+var soundPlayingInChannel []string
+
 type Cooldown struct {
   Userid string
   EndTime int64
@@ -198,6 +200,16 @@ func playSound(s *discordgo.Session, guildID string, channelID string, buffer []
 		return err
 	}
 
+  // check if channel is already joined
+  for _, channel := range soundPlayingInChannel {
+    if channel == channelID {
+      return errors.New("Channel is already playing sound!")
+    }
+  }
+
+  // add channel
+  soundPlayingInChannel = append(soundPlayingInChannel, channelID)
+
 	// Sleep for a specified amount of time before playing the sound
 	time.Sleep(500 * time.Millisecond)
 
@@ -214,6 +226,13 @@ func playSound(s *discordgo.Session, guildID string, channelID string, buffer []
 
 	// Sleep for a specificed amount of time before ending.
 	time.Sleep(500 * time.Millisecond)
+
+  // remove index
+  for index, channel := range soundPlayingInChannel {
+    if channel == channelID {
+      soundPlayingInChannel = append(soundPlayingInChannel[:index], soundPlayingInChannel[index+1:]...)
+    }
+  }
 
 	// Disconnect from the provided voice channel.
 	vc.Disconnect()
