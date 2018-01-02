@@ -4,10 +4,12 @@ import (
     "github.com/emicklei/go-restful"
     "config"
     "errors"
+    "bot"
+    "strings"
 )
 
 type IrcBridgeResponse struct {
-  Message string
+  Res bot.ResponseWrapper
   Success bool
 }
 
@@ -33,11 +35,23 @@ func Execute(request *restful.Request, response *restful.Response) {
   response.AddHeader("Access-Control-Allow-Credentials", "true")
   response.AddHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT")
   response.AddHeader("Access-Control-Allow-Headers", "x-extension-jwt, Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
+
   clientid := request.QueryParameter("clientid")
+  content := request.QueryParameter("content")
+  guildid := request.QueryParameter("guildid")
+  channelid := request.QueryParameter("channelid")
+  authorid := request.QueryParameter("authorid")
+
+  if authorid == "" {
+    authorid = clientid
+  }
 
   // get whitelisted arrays
   clientids := config.Globalcfg.Section("clientids")
   clientidKeys := clientids.Keys()
+
+  var success bool
+  var res bot.ResponseWrapper
 
   var canExecute = false
 
@@ -53,6 +67,21 @@ func Execute(request *restful.Request, response *restful.Response) {
     return
   }
 
+  // parse stuff here
+  for _, command := range bot.Commands {
+    for _, name := range command.GetNames() {
+      if strings.HasPrefix(content, name) {
 
-  response.WriteEntity(IrcBridgeResponse{})
+        success, res = command.Execute(bot.MessageWrapper{S: nil, M: nil,
+          Content: content,
+
+          DChannelID: channelid,
+          DGuildID: guildid,
+          DAuthorID: authorid,
+        })
+      }
+    }
+  }
+
+  response.WriteEntity(IrcBridgeResponse{Success: success, Res: res})
 }

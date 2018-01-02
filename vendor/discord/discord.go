@@ -46,34 +46,7 @@ func NewDiscordBot(cfg *ini.File) *DiscordConnection {
 
   newConn.Session = s
 
-  createCommands()
-
   return newConn
-}
-
-func createCommands() {
-  // create commands
-  bot.Commands = append(bot.Commands, &bot.SplooshKaboomCommand{DefaultCommand: bot.DefaultCommand {
-    ID: 0,
-    Names: []string{"~reset", "~target", "~show", "~cheat"},
-    Output: []string{},
-    Help: "~reset -> resets game\n~target x y -> targets field\n~show -> shows current Sploosh Kaboom game",
-  }})
-
-  bot.Commands = append(bot.Commands, &bot.HelpCommand{DefaultCommand: bot.DefaultCommand {
-    ID: 0,
-    Names: []string{"~help"},
-    Help: "~help -> prints help text",
-    Output: []string{""},
-  }})
-
-  bot.Commands = append(bot.Commands, &bot.SoundCommand{DefaultCommand: bot.DefaultCommand {
-    ID: 0,
-    Names: []string{"~ps", "~ls"},
-    Help: "~ps <sound name> -> plays sound\n~ls -> lists all sounds",
-    Output: []string{},
-    CooldownLen: 30,
-  }})
 }
 
 func ready(s *discordgo.Session, event *discordgo.Ready) {
@@ -113,7 +86,61 @@ func (*DiscordConnection) onMessage(s *discordgo.Session, m *discordgo.MessageCr
   for _, command := range bot.Commands {
     for _, name := range command.GetNames() {
       if strings.HasPrefix(m.Content, name) {
-        command.Execute(s, m)
+        channel, _ := s.Channel(m.ChannelID)
+        guild, _ := s.Guild(channel.GuildID)
+
+        emoji := guild.Emojis
+
+        _, res := command.Execute(bot.MessageWrapper{S: s, M: m,
+          Content: m.Content,
+          Emoji: emoji,
+          Guild: guild,
+          Channel: channel,
+
+          DChannelID: channel.ID,
+          DGuildID: guild.ID,
+          DAuthorID: m.Author.ID,
+        })
+
+        s.ChannelMessageSend(m.ChannelID, res.Message)
+
+        if res.Sound != "" {
+          // load sound here
+          sound, err := bot.LoadSound("./sounds/" + res.Sound)
+          if err != nil && sound == nil {
+            s.ChannelMessageSend(m.ChannelID, "Error loading sound:" + err.Error())
+            fmt.Println("Error loading sound:", err)
+            continue
+          } else {
+            // Find the channel that the message came from.
+        		channel, err := s.State.Channel(m.ChannelID)
+        		if err != nil {
+        			// Could not find channel.
+              fmt.Println("Error finding channel:", err)
+            } else {
+              // Find the guild for that channel.
+          		guildSnd, err := s.State.Guild(channel.GuildID)
+          		if err != nil {
+          			// Could not find guild.
+          			fmt.Println("Error finding guild:", err)
+              } else {
+                // Look for the message sender in that guild's current voice states.
+            		for _, vs := range guildSnd.VoiceStates {
+
+            			if vs.UserID == m.Author.ID {
+                    //c.SetCooldown(m.Author.ID, c.DefaultCommand.CooldownLen)
+                    err = bot.PlaySound(s, guildSnd.ID, vs.ChannelID, sound)
+              			if err != nil {
+                      s.ChannelMessageSend(m.ChannelID, "Error playing sound:" + err.Error())
+              				fmt.Println("Error playing sound:", err)
+              			}
+                    break
+            			}
+                }
+              }
+            }
+          }
+        }
       }
     }
   }

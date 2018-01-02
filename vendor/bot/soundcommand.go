@@ -6,6 +6,7 @@ import (
   "io/ioutil"
   "fmt"
   "config"
+  "os"
 )
 
 type SoundCommand struct {
@@ -13,11 +14,9 @@ type SoundCommand struct {
 
 }
 
-func (c *SoundCommand) Execute(s *discordgo.Session, m *discordgo.MessageCreate) bool {
-  split := strings.Split(m.Content, " ")
-
-  channel, _ := s.Channel(m.ChannelID)
-  guild, _ := s.Guild(channel.GuildID)
+func (c *SoundCommand) Execute(mw MessageWrapper) (bool, ResponseWrapper) {
+  var res ResponseWrapper
+  split := strings.Split(mw.Content, " ")
 
   // get whitelisted arrays
   whitelist := config.Globalcfg.Section("soundwhitelist")
@@ -26,27 +25,27 @@ func (c *SoundCommand) Execute(s *discordgo.Session, m *discordgo.MessageCreate)
   var canExecute = false
 
   for _, key := range whitelistKeys {
-    if key.String() == guild.ID {
+    if key.String() == mw.DGuildID {
       canExecute = true
       break;
     }
   }
 
   if !canExecute && len(whitelistKeys) > 0 {
-    s.ChannelMessageSend(m.ChannelID, "Your discord guild is not whitelisted for sounds! Please contact" +
-      "lukaskrickl@gmail.com to be added to the whitelist!")
-    return false
+    res.Message += "Your discord guild is not whitelisted for sounds! Please contact" +
+      "lukaskrickl@gmail.com to be added to the whitelist!"
+    return false, res
   }
 
   if len(split) < 1 {
-    return false
+    return false, res
   }
 
   if split[0] == "~ls" {
     files, err := ioutil.ReadDir("./sounds")
     if err != nil {
-      s.ChannelMessageSend(m.ChannelID, "Unable to list sounds!")
-      return false
+      res.Message += "Unable to list sounds!"
+      return false, res
     }
 
     out := "```Sounds:\n\n"
@@ -57,58 +56,29 @@ func (c *SoundCommand) Execute(s *discordgo.Session, m *discordgo.MessageCreate)
 
     out = out + "```"
 
-    s.ChannelMessageSend(m.ChannelID, out)
+    res.Message += out
   } else if split[0] == "~ps" {
-    if c.IsOnCooldown(m.Author.ID) {
-      out := fmt.Sprintf("You are on cooldown for %d seconds!", c.GetRemainingCooldown(m.Author.ID))
-      s.ChannelMessageSend(m.ChannelID, out)
-      return false
+    if c.IsOnCooldown(mw.DAuthorID) {
+      out := fmt.Sprintf("You are on cooldown for %d seconds!", c.GetRemainingCooldown(mw.DAuthorID))
+      res.Message += out
+      return false, res
     }
 
     if len(split) < 2 {
-      s.ChannelMessageSend(m.ChannelID, "Usage: ~ps <sound>. Use ~ls to see a list of all sound files.")
-      return false
+      res.Message += "Usage: ~ps <sound>. Use ~ls to see a list of all sound files."
+      return false, res
     }
 
-    // load sound here
-    sound, err := loadSound("./sounds/" + split[1])
-    if err != nil && sound == nil {
-      s.ChannelMessageSend(m.ChannelID, "Error loading sound:" + err.Error())
-      fmt.Println("Error loading sound:", err)
-      return false
+    if _, err := os.Stat("./sounds/" + split[1]); err != nil {
+      res.Message += "Error playing sound: " + err.Error()
     } else {
-      // Find the channel that the message came from.
-  		channel, err := s.State.Channel(m.ChannelID)
-  		if err != nil {
-  			// Could not find channel.
-        fmt.Println("Error finding channel:", err)
-      } else {
-        // Find the guild for that channel.
-    		guildSnd, err := s.State.Guild(channel.GuildID)
-    		if err != nil {
-    			// Could not find guild.
-    			fmt.Println("Error finding guild:", err)
-        } else {
-          // Look for the message sender in that guild's current voice states.
-      		for _, vs := range guildSnd.VoiceStates {
-
-      			if vs.UserID == m.Author.ID {
-              //c.SetCooldown(m.Author.ID, c.DefaultCommand.CooldownLen)
-              s.ChannelMessageSend(m.ChannelID, "Playing sound: " + split[1])
-              err = playSound(s, guildSnd.ID, vs.ChannelID, sound)
-        			if err != nil {
-                s.ChannelMessageSend(m.ChannelID, "Error playing sound:" + err.Error())
-        				fmt.Println("Error playing sound:", err)
-        			}
-              break
-      			}
-          }
-        }
-      }
+      res.Sound = split[1]
+      res.Message += "Playing sound " + split[1]
+      c.SetCooldown(mw.DAuthorID, c.CooldownLen)
     }
   }
 
-  return true
+  return true, res
 }
 
 func (c *SoundCommand) OnGuildCreated(s *discordgo.Session, event *discordgo.GuildCreate) {

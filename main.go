@@ -9,6 +9,7 @@ import (
 	"restapi"
 	"flag"
 	"net/http"
+	"bot"
 )
 
 func httpListen(keyPtr *string, certPtr *string, portPtr *string) {
@@ -28,6 +29,7 @@ func main() {
 
 	// set up rest api
 	restapi.New()
+	bot.CreateCommands()
 
 	go httpListen(keyPtr, certPtr, portPtr)
 

@@ -16,13 +16,39 @@ var MessagesToCleanBuffer []MessageBuffer
 
 var soundPlayingInChannel []string
 
+/*
+MessageWrapper - This struct wraps around messages to allow different connection types
+*/
+type MessageWrapper struct {
+  S *discordgo.Session
+  M *discordgo.MessageCreate
+  Content string
+
+  DGuildID string
+  DChannelID string
+  DAuthorID string
+
+
+  Guild *discordgo.Guild
+  Channel *discordgo.Channel
+  Emoji []*discordgo.Emoji
+}
+
+/*
+ResponseWrapper - This struct represents a response from Execute
+*/
+type ResponseWrapper struct {
+  Message string
+  Sound string
+}
+
 type Cooldown struct {
   Userid string
   EndTime int64
 }
 
 type CommandI interface {
-  Execute(s *discordgo.Session, m *discordgo.MessageCreate) bool
+  Execute(mw MessageWrapper) (bool, ResponseWrapper)
   GetNames() []string
   GetOutput() []string
   GetID() int
@@ -81,18 +107,19 @@ func GetEmojiForName(name string ,emoji []*discordgo.Emoji) *discordgo.Emoji {
   return nil
 }
 
-func (c *DefaultCommand) Execute(s *discordgo.Session, m *discordgo.MessageCreate) bool {
-  if c.IsOnCooldown(m.Author.ID) {
-    return false
+func (c *DefaultCommand) Execute(mw MessageWrapper) (bool, ResponseWrapper) {
+  var res ResponseWrapper
+  if c.IsOnCooldown(mw.DAuthorID) {
+    return false, res
   }
 
   for _, op := range c.Output {
-    s.ChannelMessageSend(m.ChannelID, op)
+    res.Message += op
   }
 
-  c.SetCooldown(m.Author.ID, c.CooldownLen)
+  c.SetCooldown(mw.DAuthorID, c.CooldownLen)
 
-  return true
+  return true, res
 }
 
 func (c *DefaultCommand) OnGuildCreated(s *discordgo.Session, event *discordgo.GuildCreate) {
@@ -141,7 +168,32 @@ func (c *DefaultCommand)  GetRemainingCooldown(userid string) int64 {
 
 // util stuff
 
-func loadSound(path string) ([][]byte, error) {
+func CreateCommands() {
+  // create commands
+  Commands = append(Commands, &SplooshKaboomCommand{DefaultCommand: DefaultCommand {
+    ID: 0,
+    Names: []string{"~reset", "~target", "~show", "~cheat"},
+    Output: []string{},
+    Help: "~reset -> resets game\n~target x y -> targets field\n~show -> shows current Sploosh Kaboom game",
+  }})
+
+  Commands = append(Commands, &HelpCommand{DefaultCommand: DefaultCommand {
+    ID: 0,
+    Names: []string{"~help"},
+    Help: "~help -> prints help text",
+    Output: []string{""},
+  }})
+
+  Commands = append(Commands, &SoundCommand{DefaultCommand: DefaultCommand {
+    ID: 0,
+    Names: []string{"~ps", "~ls"},
+    Help: "~ps <sound name> -> plays sound\n~ls -> lists all sounds",
+    Output: []string{},
+    CooldownLen: 30,
+  }})
+}
+
+func LoadSound(path string) ([][]byte, error) {
   var buffer = make([][]byte, 0)
   file, err := os.Open(path)
 	if err != nil {
@@ -192,7 +244,7 @@ func loadSound(path string) ([][]byte, error) {
 }
 
 // playSound plays the current buffer to the provided channel.
-func playSound(s *discordgo.Session, guildID string, channelID string, buffer [][]byte) (err error) {
+func PlaySound(s *discordgo.Session, guildID string, channelID string, buffer [][]byte) (err error) {
 
 	// Join the provided voice channel.
 	vc, err := s.ChannelVoiceJoin(guildID, channelID, false, true)
