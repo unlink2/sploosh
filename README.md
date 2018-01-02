@@ -15,7 +15,9 @@ Note: To disable sounds that the bot plays simply either mute it or add it to a 
 
 To get the bot yourself simply run
 
+```
   go get github.com/unlink2/sploosh
+```
 
 ### Configuration FIle
 
@@ -23,10 +25,13 @@ The bot expects a config file to be placed next to it's executable.
 
 The file should be called
 
+```
   config.ini
+```
 
 and look as like this:
 
+```
   [discord]
   clientid=YOUR CLIENTID
   token=YOUR TOKEN
@@ -42,6 +47,7 @@ and look as like this:
   1=clientsecret1
   2=clientsecret2
   ...
+```
 
 the sound whitelist, clientids and clientsecrets are optional. If left out
 sounds will be enabled for every guild and the api will not require client-ids or secrets.
@@ -50,11 +56,15 @@ sounds will be enabled for every guild and the api will not require client-ids o
 
 The bot can also play optional soundfiles. The files are called
 
+```
   sounds/sploosh.dca
+```
 
 and
 
+```
   sounds/kaboom.dca
+```
 
 These files will be played if the user using the bot is in  a voice channel.
 
@@ -63,6 +73,7 @@ These files will be played if the user using the bot is in  a voice channel.
 The following optional emotes can be added to your discord to make the bot look nicer.
 If the emotes are not present emoji will be used instead.
 
+```
   skMiddleH
   skMiddleV
   skFrontW
@@ -80,3 +91,4 @@ If the emotes are not present emoji will be used instead.
   skBlank
   skSploosh
   skKaboom
+```
