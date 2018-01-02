@@ -25,7 +25,7 @@ func (c *SplooshKaboomCommand) Execute(s *discordgo.Session, m *discordgo.Messag
   // load sounds if not done already
   var err error
   if len(c.splooshSound) == 0 {
-    c.splooshSound, err = loadSound("./sploosh.dca")
+    c.splooshSound, err = loadSound("./sounds/sploosh.dca")
     if err != nil {
       fmt.Println(err)
     } else {
@@ -33,7 +33,7 @@ func (c *SplooshKaboomCommand) Execute(s *discordgo.Session, m *discordgo.Messag
     }
   }
   if len(c.kaboomSound) == 0 {
-    c.kaboomSound, err = loadSound("./kaboom.dca")
+    c.kaboomSound, err = loadSound("./sounds/kaboom.dca")
     if err != nil {
       fmt.Println(err)
     } else {

@@ -35,11 +35,11 @@ token=YOUR TOKEN`
 
 The bot can also play optional soundfiles. The files are called
 
-`sploosh.dca`
+`sounds/sploosh.dca`
 
 and
 
-`kaboom.dca`
+`sounds/kaboom.dca`
 
 These files will be played if the user using the bot is in  a voice channel.
 
