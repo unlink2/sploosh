@@ -83,6 +83,8 @@ func (c *SplooshKaboomCommand) Execute(s *discordgo.Session, m *discordgo.Messag
       response = fmt.Sprintf("SPLOOSH!\n%s", response)
     }
 
+    s.ChannelMessageSend(m.ChannelID, response)
+
     // Find the channel that the message came from.
 		channel, err := s.State.Channel(m.ChannelID)
 		if err != nil {
@@ -117,9 +119,6 @@ func (c *SplooshKaboomCommand) Execute(s *discordgo.Session, m *discordgo.Messag
         }
       }
     }
-
-
-    s.ChannelMessageSend(m.ChannelID, response)
   } else if strings.HasPrefix(m.Content, "~cheat") {
     sk := c.GetSplooshKaboomForID(guild.ID)
     sk.GameOver()
