@@ -17,6 +17,8 @@ type DiscordConnection struct {
   Session *discordgo.Session
 }
 
+var lastS *discordgo.Session // buffer for last discord session
+
 func NewDiscordBot(cfg *ini.File) *DiscordConnection {
   var newConn = new(DiscordConnection)
   var err error
@@ -50,6 +52,7 @@ func NewDiscordBot(cfg *ini.File) *DiscordConnection {
 }
 
 func ready(s *discordgo.Session, event *discordgo.Ready) {
+  lastS = s
 
 	// Set the playing status.
 	s.UpdateStatus(0, "SPLOOSH! KABOOM!")
@@ -61,6 +64,8 @@ func ready(s *discordgo.Session, event *discordgo.Ready) {
 // This function will be called (due to AddHandler above) every time a new
 // guild is joined.
 func guildCreate(s *discordgo.Session, event *discordgo.GuildCreate) {
+  lastS = s
+
 	if event.Guild.Unavailable {
 		return
 	}
@@ -73,6 +78,8 @@ func guildCreate(s *discordgo.Session, event *discordgo.GuildCreate) {
 }
 
 func (*DiscordConnection) onMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
+  lastS = s
+
   // Ignore all messages created by the bot itself
 	if m.Author.ID == s.State.User.ID {
     bot.CleanMessages(s, m.ChannelID)
@@ -103,41 +110,51 @@ func (*DiscordConnection) onMessage(s *discordgo.Session, m *discordgo.MessageCr
         })
 
         s.ChannelMessageSend(m.ChannelID, res.Message)
+        go PlayDiscordSound(res, m.ChannelID, m.Author.ID, s)
+      }
+    }
+  }
+}
 
-        if res.Sound != "" {
-          // load sound here
-          sound, err := bot.LoadSound("./sounds/" + res.Sound)
-          if err != nil && sound == nil {
-            s.ChannelMessageSend(m.ChannelID, "Error loading sound:" + err.Error())
-            fmt.Println("Error loading sound:", err)
-            continue
-          } else {
-            // Find the channel that the message came from.
-        		channel, err := s.State.Channel(m.ChannelID)
-        		if err != nil {
-        			// Could not find channel.
-              fmt.Println("Error finding channel:", err)
-            } else {
-              // Find the guild for that channel.
-          		guildSnd, err := s.State.Guild(channel.GuildID)
-          		if err != nil {
-          			// Could not find guild.
-          			fmt.Println("Error finding guild:", err)
-              } else {
-                // Look for the message sender in that guild's current voice states.
-            		for _, vs := range guildSnd.VoiceStates {
+func PlayDiscordSound(res bot.ResponseWrapper, channelid string, authorid string, s *discordgo.Session) {
+  if s == nil {
+    if lastS == nil {
+      return
+    }
+    s = lastS
+  }
 
-            			if vs.UserID == m.Author.ID {
-                    //c.SetCooldown(m.Author.ID, c.DefaultCommand.CooldownLen)
-                    err = bot.PlaySound(s, guildSnd.ID, vs.ChannelID, sound)
-              			if err != nil {
-                      s.ChannelMessageSend(m.ChannelID, "Error playing sound:" + err.Error())
-              				fmt.Println("Error playing sound:", err)
-              			}
-                    break
-            			}
-                }
+  if res.Sound != "" {
+    // load sound here
+    sound, err := bot.LoadSound("./sounds/" + res.Sound)
+    if err != nil && sound == nil {
+      s.ChannelMessageSend(channelid, "Error loading sound:" + err.Error())
+      fmt.Println("Error loading sound:", err)
+      return
+    } else {
+      // Find the channel that the message came from.
+      channel, err := s.State.Channel(channelid)
+      if err != nil {
+        // Could not find channel.
+        fmt.Println("Error finding channel:", err)
+      } else {
+        // Find the guild for that channel.
+        guildSnd, err := s.State.Guild(channel.GuildID)
+        if err != nil {
+          // Could not find guild.
+          fmt.Println("Error finding guild:", err)
+        } else {
+          // Look for the message sender in that guild's current voice states.
+          for _, vs := range guildSnd.VoiceStates {
+
+            if vs.UserID == authorid {
+              //c.SetCooldown(m.Author.ID, c.DefaultCommand.CooldownLen)
+              err = bot.PlaySound(s, guildSnd.ID, vs.ChannelID, sound)
+              if err != nil {
+                s.ChannelMessageSend(channelid, "Error playing sound:" + err.Error())
+                fmt.Println("Error playing sound:", err)
               }
+              break
             }
           }
         }

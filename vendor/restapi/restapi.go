@@ -5,6 +5,7 @@ import (
     "config"
     "errors"
     "bot"
+    "discord"
     "strings"
 )
 
@@ -81,6 +82,10 @@ func Execute(request *restful.Request, response *restful.Response) {
         })
       }
     }
+  }
+
+  if res.Sound != "" && channelid != "" && authorid != "" && guildid != "" {
+    go discord.PlayDiscordSound(res, channelid, authorid, nil)
   }
 
   response.WriteEntity(IrcBridgeResponse{Success: success, Res: res})
