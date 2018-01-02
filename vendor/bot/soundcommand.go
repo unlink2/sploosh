@@ -32,7 +32,7 @@ func (c *SoundCommand) Execute(s *discordgo.Session, m *discordgo.MessageCreate)
     }
   }
 
-  if !canExecute && len(whitelistKeys) > 0{
+  if !canExecute && len(whitelistKeys) > 0 {
     s.ChannelMessageSend(m.ChannelID, "Your discord guild is not whitelisted for sounds! Please contact" +
       "lukaskrickl@gmail.com to be added to the whitelist!")
     return false

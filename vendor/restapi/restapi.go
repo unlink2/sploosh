@@ -36,19 +36,19 @@ func Execute(request *restful.Request, response *restful.Response) {
   clientid := request.QueryParameter("clientid")
 
   // get whitelisted arrays
-  whitelist := config.Globalcfg.Section("clientids")
-  whitelistKeys := whitelist.Keys()
+  clientids := config.Globalcfg.Section("clientids")
+  clientidKeys := clientids.Keys()
 
   var canExecute = false
 
-  for _, key := range whitelistKeys {
+  for _, key := range clientidKeys {
     if key.String() == clientid {
       canExecute = true
       break;
     }
   }
 
-  if !canExecute {
+  if !canExecute && len(clientidKeys) > 0 {
     response.WriteError(418, errors.New("Invalid client-id"))
     return
   }
