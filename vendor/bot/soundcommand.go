@@ -60,10 +60,13 @@ func (c *SoundCommand) Execute(s *discordgo.Session, m *discordgo.MessageCreate)
     s.ChannelMessageSend(m.ChannelID, out)
   } else if split[0] == "~ps" {
     if c.IsOnCooldown(m.Author.ID) {
+      out := fmt.Sprintf("You are on cooldown for %d seconds!", c.GetRemainingCooldown(m.Author.ID))
+      s.ChannelMessageSend(m.ChannelID, out)
       return false
     }
 
     if len(split) < 2 {
+      s.ChannelMessageSend(m.ChannelID, "Usage: ~ps <sound>. Use ~ls to see a list of all sound files.")
       return false
     }
 
@@ -88,23 +91,21 @@ func (c *SoundCommand) Execute(s *discordgo.Session, m *discordgo.MessageCreate)
         } else {
           // Look for the message sender in that guild's current voice states.
       		for _, vs := range guildSnd.VoiceStates {
-
+            
       			if vs.UserID == m.Author.ID {
+              c.SetCooldown(m.Author.ID, c.DefaultCommand.CooldownLen)
+              s.ChannelMessageSend(m.ChannelID, "Playing sound: " + split[1])
               err = playSound(s, guildSnd.ID, vs.ChannelID, sound)
         			if err != nil {
                 s.ChannelMessageSend(m.ChannelID, "Error playing sound:" + err.Error())
         				fmt.Println("Error playing sound:", err)
-        			} else {
-                s.ChannelMessageSend(m.ChannelID, "Playing sound: " + split[1])
-              }
+        			}
               break
       			}
           }
         }
       }
     }
-
-    c.SetCooldown(m.Author.ID, c.DefaultCommand.CooldownLen)
   }
 
   return true

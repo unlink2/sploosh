@@ -28,6 +28,7 @@ type CommandI interface {
 
   IsOnCooldown(userid string) bool
   SetCooldown(userid string, duration int64)
+  GetRemainingCooldown(userid string) int64
 
   OnGuildCreated(s *discordgo.Session, event *discordgo.GuildCreate)
 }
@@ -124,6 +125,16 @@ func (c *DefaultCommand) IsOnCooldown(userid string) bool {
 
 func (c *DefaultCommand) SetCooldown(userid string, duration int64) {
   c.cooldowns = append(c.cooldowns, Cooldown{Userid: userid, EndTime: time.Now().Unix() + duration})
+}
+
+func (c *DefaultCommand)  GetRemainingCooldown(userid string) int64 {
+  for _, cd := range c.cooldowns {
+    if cd.Userid == userid {
+      return cd.EndTime - time.Now().Unix()
+    }
+  }
+
+  return -1
 }
 
 // util stuff
