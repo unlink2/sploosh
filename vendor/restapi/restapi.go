@@ -7,7 +7,8 @@ import (
 )
 
 type IrcBridgeResponse struct {
-
+  Message string
+  Success bool
 }
 
 func New() {
@@ -35,7 +36,7 @@ func Execute(request *restful.Request, response *restful.Response) {
   clientid := request.QueryParameter("clientid")
 
   // get whitelisted arrays
-  whitelist := config.Globalcfg.Section("soundwhitelist")
+  whitelist := config.Globalcfg.Section("clientids")
   whitelistKeys := whitelist.Keys()
 
   var canExecute = false
